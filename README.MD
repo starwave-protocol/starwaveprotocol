@@ -1,6 +1,6 @@
 # StarWave Network Protocol
 
-Read this in other languages: [English](README.md), [Русский](README_RU.md)
+Read this in other languages: [English](README.MD), [Русский](README_RU.MD)
 
 ## Introduction
 ### What is StarWave?

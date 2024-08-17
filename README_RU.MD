@@ -1,5 +1,5 @@
 # Сетевой протокол StarWave
-Read this in other languages: [English](README.md), [Русский](README_RU.md)
+Read this in other languages: [English](README.MD), [Русский](README_RU.MD)
 
 ## Введение
 ### Что такое StarWave?
