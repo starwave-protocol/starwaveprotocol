@@ -1,4 +1,7 @@
 # StarWave Network Protocol
+
+Read this in other languages: [English](README.md), [Русский](README_RU.md)
+
 ## Introduction
 ### What is StarWave?
 Previously released as a part of iZ³ blockchain platform, StarWave is a messaging protocol provides you ability to create encrypted hi-speed channels between the nodes in p2p way.
