@@ -21,4 +21,8 @@ export default class Crypto {
         decrypted += decipher.final('utf8');
         return decrypted;
     }
+
+    static randomBytesString(length) {
+        return randomBytes(length).toString('hex');
+    }
 }

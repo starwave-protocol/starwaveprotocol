@@ -1,10 +1,12 @@
 import EncodingUtils from "../EncodingUtils.mjs";
 import Crypto from "../Crypto.mjs";
 import UnencryptedSignedMessage from "./UnencryptedSignedMessage.mjs";
+import {MESSAGE_TYPES} from "../ProtocolMessages.mjs";
 
 export default class EncryptedSignedMessage extends UnencryptedSignedMessage {
     constructor({message, signature, from, to, protocolVersion, timestamp}) {
         super({message, signature, from, to, protocolVersion, timestamp});
+        this.type = MESSAGE_TYPES.ENCRYPTED;
     }
 
     async getBody(encryptionKey) {
