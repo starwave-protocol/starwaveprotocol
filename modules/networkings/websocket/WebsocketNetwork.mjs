@@ -13,6 +13,7 @@ export const WS_SERVICE_MESSAGE_TYPES = {
     HANDSHAKE: 'handshake',
     HANDSHAKE_RESPONSE: 'handshake_response',
     STARWAVE_MESSAGE: 'sw'
+    //TODO: Peer exchange
 };
 
 class WSMessage {
@@ -205,6 +206,7 @@ export default class WebsocketNetwork extends AbstractNetworkingProvider {
     }
 
     async #socketClose(ws) {
+        //TODO: Peer reconnect
         console.log('WS socket close');
         this.connectionsSockets = this.connectionsSockets.filter(socket => socket !== ws);
         this.addressMap = Object.keys(this.addressMap).reduce((acc, key) => {

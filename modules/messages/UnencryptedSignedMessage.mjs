@@ -6,7 +6,7 @@ import {MESSAGE_TYPES} from "../ProtocolMessages.mjs";
 export default class UnencryptedSignedMessage {
     constructor({message, signature, from, to, protocolVersion, timestamp, expectedRoute}) {
 
-        if (!from || !to || !protocolVersion || !timestamp) {
+        if (!from || !to) {
             throw new Error('Invalid message');
         }
 
@@ -22,8 +22,8 @@ export default class UnencryptedSignedMessage {
         this.signature = signature;
         this.from = from;
         this.to = to;
-        this.protocolVersion = protocolVersion;
-        this.timestamp = timestamp;
+        this.protocolVersion = protocolVersion || 1;
+        this.timestamp = timestamp || +Date.now();
         this.type = MESSAGE_TYPES.UNENCRYPTED;
         this.hops = [];
         this.expectedRoute = expectedRoute || [];
@@ -79,7 +79,7 @@ export default class UnencryptedSignedMessage {
     }
 
     static fromObject(object) {
-        let message =  new UnencryptedSignedMessage(object);
+        let message = new UnencryptedSignedMessage(object);
         message.hops = object.hops;
         return message;
     }

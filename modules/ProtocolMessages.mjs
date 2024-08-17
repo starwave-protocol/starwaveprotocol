@@ -24,6 +24,8 @@ export default class ProtocolMessages extends EventEmitter {
         let from = message.from;
         let to = message.to;
 
+          //console.log('RAW',message)
+
         //Address of node (socket) that sent message. Not the sender of message
         let nodeAddress = options.nodeAddress || null;
 
@@ -83,16 +85,16 @@ export default class ProtocolMessages extends EventEmitter {
             if (messageObject.expectedRoute.length === 0) { //There is no route, so we need to find it
                 messageObject.addHop(this.myAddress); //Add hop
                 //Broadcast
-               // console.log('Broadcast message1');
+                // console.log('Broadcast message1');
                 await this.#broadcastMessage(messageObject.getFullMessage(), {exclude: [nodeAddress]});
             } else { //We have expected route
-                console.log('Expected route', messageObject);
+                // console.log('Expected route', messageObject);
                 if (messageObject.hasExpectedRoute(this.myAddress)) { //If routing going ok
                     //Just send to next hop with network module that has current connection
 
                     let nextHop = messageObject.nextExpectedRoute(this.myAddress);
 
-                   // console.log('Send to next hop', nextHop);
+                    // console.log('Send to next hop', nextHop);
                     await this.sendMessage(nextHop, messageObject.getFullMessage());
                 } else { //Oops, routing is broken
                     messageObject.clearExpectedRoute(); //Clear expected route
@@ -106,7 +108,7 @@ export default class ProtocolMessages extends EventEmitter {
                         messageObject.addHop(this.myAddress);
                         //Send to next hop with connections
                         let nextHop = messageObject.nextExpectedRoute(this.myAddress);
-                       // console.log('Send to next hop', nextHop);
+                        // console.log('Send to next hop', nextHop);
 
                         await this.sendMessage(nextHop, messageObject.getFullMessage());
 
@@ -116,7 +118,7 @@ export default class ProtocolMessages extends EventEmitter {
                     //So, we don't know that recipient is and routing is broken - we need to broadcast message to find it
 
                     //Broadcast
-                  //  console.log('Broadcast message2');
+                    //  console.log('Broadcast message2');
                     messageObject.addHop(this.myAddress);
                     console.log(messageObject.getFullMessage());
                     await this.#broadcastMessage(messageObject.getFullMessage(), {exclude: [nodeAddress]});
@@ -150,7 +152,15 @@ export default class ProtocolMessages extends EventEmitter {
     }
 
     async broadcastMessage(message, options = {exclude: []}) {
-        message = UnencryptedSignedMessage.fromObject(message);
+        switch (message.type) {
+            case MESSAGE_TYPES.UNENCRYPTED:
+                message = UnencryptedSignedMessage.fromObject(message);
+                break;
+            case MESSAGE_TYPES.ENCRYPTED:
+                message = EncryptedSignedMessage.fromObject(message);
+                break;
+        }
+
         message.updateExpectedRoute(await this.networkMap.findShortestRoutes(message.from, message.to));
         await this.#broadcastMessage(message.getFullMessage(), options);
     }

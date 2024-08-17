@@ -6,6 +6,7 @@ import NetworkMap from "./modules/NetworkMap.mjs";
 import ProtocolMessages from "./modules/ProtocolMessages.mjs";
 import UnencryptedSignedMessage from "./modules/messages/UnencryptedSignedMessage.mjs";
 import WebsocketNetwork from "./modules/networkings/websocket/WebsocketNetwork.mjs";
+import DHChannel from "./modules/DHChannel.mjs";
 
 dotenv.config({path: process.argv[2] || '.env'});
 
@@ -22,13 +23,68 @@ let messagesProcessor = new ProtocolMessages({myAddress: nodeAddress, myPrivateK
 //Add network providers
 messagesProcessor.registerNetworkProvider(new WebsocketNetwork({myAddress: nodeAddress, myPrivateKey: nodePrivateKey}));
 
+
+/*
 messagesProcessor.on('message', async (message) => {
     Logger.log('Received message', message);
     console.log(await networkMap.findShortestRoutes(nodeAddress, message.from));
-});
+});*/
 
 await messagesProcessor.initNetworks();
 
+console.log('Networks initialized');
+const dhChannel = new DHChannel({
+    myAddress: nodeAddress,
+    myPrivateKey: nodePrivateKey,
+    protocolMessages: messagesProcessor
+});
+console.log('DH Channel initialized');
+await dhChannel.init();
+
+let sended = false;
+dhChannel.on('message', async (message) => {
+    console.log('!!!DH Received message', message);
+
+
+
+
+    if(sended){
+        return
+    }
+    let sMessage = new UnencryptedSignedMessage({
+        message: 'Hello to you, my world!',
+        from: nodeAddress,
+        to: message.from,
+    });
+
+    await dhChannel.sendEncryptedMessage(sMessage);
+
+    sended = true;
+
+
+});
+
+if (String(process.argv[2]).includes('3')) {
+    setTimeout(async () => {
+        let secret = await dhChannel.connect('0xa75502d567ab67ff94e875015cee4440372aab10');
+
+        console.log('Secret', secret.toString('hex'));
+
+        let message = new UnencryptedSignedMessage({
+            message: 'Hello world',
+            from: nodeAddress,
+            to: '0xa75502d567ab67ff94e875015cee4440372aab10',
+            protocolVersion: 1,
+            timestamp: +new Date()
+        });
+
+
+        await dhChannel.sendEncryptedMessage(message);
+
+
+    }, 5000);
+
+}
 /*
 let message = new UnencryptedSignedMessage({
     message: 'Hello world',

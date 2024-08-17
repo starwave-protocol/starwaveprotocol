@@ -7,6 +7,10 @@ export default class Crypto {
         return createHash('sha256').update(message).digest('hex');
     }
 
+    static string2EncryptionKey(string) {
+        return createHash('sha256').update(string).digest();
+    }
+
     static async encryptMessage(message, key) {
         const iv = randomBytes(16);
         const cipher = createCipheriv(algorithm, key, iv);
