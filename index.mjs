@@ -35,16 +35,16 @@ messagesProcessor.registerNetworkProvider(new WebsocketNetwork({myAddress: nodeA
 //Load networks plugins providers
 let NETWORK_PLUGINS = process.env.NETWORK_PLUGINS ? process.env.NETWORK_PLUGINS.split(',') : [];
 
-//get dirs from ./plugins/networks
-
-let networkingPlugins = fs.readdirSync('./plugins/networks');
-for (let plugin of networkingPlugins) {
-    //Check is dir
-    let stat = fs.statSync(`./plugins/networks/${plugin}`);
-    if (!stat.isDirectory()) {
-        continue;
+if(process.env.AUTOLOAD_PLUGINS?.toLowerCase() === 'true') {
+    let networkingPlugins = fs.readdirSync('./plugins/networks');
+    for (let plugin of networkingPlugins) {
+        //Check is dir
+        let stat = fs.statSync(`./plugins/networks/${plugin}`);
+        if (!stat.isDirectory()) {
+            continue;
+        }
+        NETWORK_PLUGINS.push(`./plugins/networks/${plugin}/index.mjs`);
     }
-    NETWORK_PLUGINS.push(`./plugins/networks/${plugin}/index.mjs`);
 }
 
 for (let plugin of NETWORK_PLUGINS) {
