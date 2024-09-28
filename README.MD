@@ -21,7 +21,7 @@ StarWave 2 uses a addresses and encryption keys based on Ethereum cryptography. 
 
 ### As service
 ```bash
-npm install -g starwave
+npm install -g @starwave/starwave-protocol-node
 ```
 
 You can start the service with the following command:
