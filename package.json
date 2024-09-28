@@ -1,6 +1,6 @@
 {
   "name": "@starwave/starwave-protocol-node",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Official Starwave 2 Protocol node",
   "main": "index.mjs",
   "scripts": {
