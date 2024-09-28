@@ -8,7 +8,6 @@ import UnencryptedSignedMessage from "./modules/messages/UnencryptedSignedMessag
 import WebsocketNetwork from "./modules/networkings/websocket/WebsocketNetwork.mjs";
 import DHChannel from "./modules/DHChannel.mjs";
 import * as fs from "node:fs";
-import API from "./modules/API.mjs";
 
 dotenv.config({path: process.argv[2] || '.env'});
 
@@ -65,23 +64,79 @@ for (let plugin of NETWORK_PLUGINS) {
     }
 }
 
-//Initialize networks, plugins and addons
+
+/*
+messagesProcessor.on('message', async (message) => {
+    Logger.log('Received message', message);
+    console.log(await networkMap.findShortestRoutes(nodeAddress, message.from));
+});*/
+
 await messagesProcessor.initNetworks();
+
 Logger.log('Networks initialized');
 
 await dhChannel.init();
 Logger.log('DH Channel initialized');
 
-if(process.env.API_ENABLE?.toLowerCase() === 'true') {
-    const api = new API({
-        protocolMessages: messagesProcessor,
-        dhChannel,
-        networkMap,
-        nodeAddress: nodeAddress,
-        utils: {
-            logger: Logger
-        }
+let sended = false;
+dhChannel.on('message', async (message) => {
+    console.log('!!!DH Received message', message);
+
+
+    if (sended) {
+        return
+    }
+    let sMessage = new UnencryptedSignedMessage({
+        message: 'Hello to you, my world!',
+        from: nodeAddress,
+        to: message.from,
+
     });
 
-    await api.init();
-}
+    await dhChannel.sendEncryptedMessage(sMessage);
+
+    sended = true;
+
+
+});
+
+//if (String(process.argv[2]).includes('3')) {
+setTimeout(async () => {
+    let secret = await dhChannel.connect('0xa75502d567ab67ff94e875015cee4440372aab10');
+
+    console.log('Secret', secret.toString('hex'));
+
+    let message = new UnencryptedSignedMessage({
+        message: 'Hello world',
+        from: nodeAddress,
+        to: '0xa75502d567ab67ff94e875015cee4440372aab10',
+        protocolVersion: 1,
+        timestamp: +new Date()
+    });
+
+
+    await dhChannel.sendEncryptedMessage(message);
+
+
+}, 5000);
+
+//}
+/*
+let message = new UnencryptedSignedMessage({
+    message: 'Hello world',
+    from: nodeAddress,
+    to: '0xd9a3c386398ef21358a727a5ba9e01f39460755d',
+    protocolVersion: 1,
+    timestamp: +new Date()
+});
+
+//await networkMap.addRoutes([nodeAddress,'a']);
+//await networkMap.addRoutes(['a', '0x1234567890123456789012345678901234567890']);
+
+await message.sign(nodePrivateKey);
+
+if(String(process.argv[2]).includes('3') ) {
+    setInterval(async () => {
+        await messagesProcessor.broadcastMessage(message);
+    }, 5000);
+}*/

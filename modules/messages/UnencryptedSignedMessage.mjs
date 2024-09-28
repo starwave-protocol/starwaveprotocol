@@ -80,7 +80,7 @@ export default class UnencryptedSignedMessage {
 
     static fromObject(object) {
         let message = new UnencryptedSignedMessage(object);
-        message.hops = object.hops;
+        message.hops = object.hops || [];
         return message;
     }
 

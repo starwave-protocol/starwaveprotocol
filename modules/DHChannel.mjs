@@ -201,6 +201,8 @@ export default class DHChannel extends EventEmitter {
 
         await this.protocolMessages.broadcastMessage(messageObject);
 
+        return messageObject;
+
     }
 
     async #processEncryptedMessage(message) {
