@@ -1,5 +1,5 @@
 {
-  "name": "starwave-demo-network",
+  "name": "@starwave/starwave-demo-network",
   "version": "1.0.0",
   "description": "Starwave 2 protocol demo network plugin",
   "main": "index.mjs",
