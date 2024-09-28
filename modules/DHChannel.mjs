@@ -3,6 +3,7 @@ import crypto from "crypto";
 import UnencryptedSignedMessage from "./messages/UnencryptedSignedMessage.mjs";
 import Crypto from "./Crypto.mjs";
 import EncryptedSignedMessage from "./messages/EncryptedSignedMessage.mjs";
+import Logger from "./Logger.mjs";
 
 const DH_PRIME_LENGTH = 512;
 
@@ -98,7 +99,7 @@ export default class DHChannel extends EventEmitter {
     }
 
     async connect(address) {
-        console.log('Connecting to', address);
+        Logger.log('DH: Connecting to', address);
 
         if (this.knownSecrets[address]) { //Now we start handshake again
             delete this.knownSecrets[address];

@@ -7,6 +7,7 @@ import ProtocolMessages from "./modules/ProtocolMessages.mjs";
 import UnencryptedSignedMessage from "./modules/messages/UnencryptedSignedMessage.mjs";
 import WebsocketNetwork from "./modules/networkings/websocket/WebsocketNetwork.mjs";
 import DHChannel from "./modules/DHChannel.mjs";
+import * as fs from "node:fs";
 
 dotenv.config({path: process.argv[2] || '.env'});
 
@@ -20,8 +21,48 @@ Logger.logMessage(`Node address: ${nodeAddress}`);
 let networkMap = new NetworkMap();
 let messagesProcessor = new ProtocolMessages({myAddress: nodeAddress, myPrivateKey: nodePrivateKey, networkMap});
 
+//Create DH Channel
+const dhChannel = new DHChannel({
+    myAddress: nodeAddress,
+    myPrivateKey: nodePrivateKey,
+    protocolMessages: messagesProcessor
+});
+
 //Add network providers
 messagesProcessor.registerNetworkProvider(new WebsocketNetwork({myAddress: nodeAddress, myPrivateKey: nodePrivateKey}));
+
+
+//Load networks plugins providers
+let NETWORK_PLUGINS = process.env.NETWORK_PLUGINS ? process.env.NETWORK_PLUGINS.split(',') : [];
+
+//get dirs from ./plugins/networks
+
+let networkingPlugins = fs.readdirSync('./plugins/networks');
+for (let plugin of networkingPlugins) {
+    //Check is dir
+    let stat = fs.statSync(`./plugins/networks/${plugin}`);
+    if (!stat.isDirectory()) {
+        continue;
+    }
+    NETWORK_PLUGINS.push(`./plugins/networks/${plugin}/index.mjs`);
+}
+
+for (let plugin of NETWORK_PLUGINS) {
+    try {
+        const pluginModule = (await import(plugin)).default;
+        messagesProcessor.registerNetworkProvider(new pluginModule({
+            myAddress: nodeAddress,
+            myPrivateKey: nodePrivateKey,
+            utils: {
+                logger: Logger,
+                dhChannel,
+                networkMap,
+            }
+        }));
+    } catch (e) {
+        Logger.error(`Failed to load plugin ${plugin}`, e);
+    }
+}
 
 
 /*
@@ -32,29 +73,24 @@ messagesProcessor.on('message', async (message) => {
 
 await messagesProcessor.initNetworks();
 
-console.log('Networks initialized');
-const dhChannel = new DHChannel({
-    myAddress: nodeAddress,
-    myPrivateKey: nodePrivateKey,
-    protocolMessages: messagesProcessor
-});
-console.log('DH Channel initialized');
+Logger.log('Networks initialized');
+
 await dhChannel.init();
+Logger.log('DH Channel initialized');
 
 let sended = false;
 dhChannel.on('message', async (message) => {
     console.log('!!!DH Received message', message);
 
 
-
-
-    if(sended){
+    if (sended) {
         return
     }
     let sMessage = new UnencryptedSignedMessage({
         message: 'Hello to you, my world!',
         from: nodeAddress,
         to: message.from,
+
     });
 
     await dhChannel.sendEncryptedMessage(sMessage);
@@ -64,7 +100,7 @@ dhChannel.on('message', async (message) => {
 
 });
 
-if (String(process.argv[2]).includes('3')) {
+//if (String(process.argv[2]).includes('3')) {
     setTimeout(async () => {
         let secret = await dhChannel.connect('0xa75502d567ab67ff94e875015cee4440372aab10');
 
@@ -84,7 +120,7 @@ if (String(process.argv[2]).includes('3')) {
 
     }, 5000);
 
-}
+//}
 /*
 let message = new UnencryptedSignedMessage({
     message: 'Hello world',
