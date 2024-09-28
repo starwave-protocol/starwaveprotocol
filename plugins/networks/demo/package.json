@@ -1,0 +1,13 @@
+{
+  "name": "@starwave/starwave-demo-network",
+  "version": "1.0.0",
+  "description": "Starwave 2 protocol demo network plugin",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+  }
+}
