@@ -16,3 +16,20 @@ This is a reference implementation of the StarWave protocol node in Node.js.
 
 ### Addresses and keys
 StarWave 2 uses a addresses and encryption keys based on Ethereum cryptography. The address is a 20 bytes long string, and the key is a 32 bytes long string. The address is used to identify the node in the network, and the key is used to encrypt the data.
+
+## Installation
+
+### As service
+```bash
+npm install -g @starwave/starwave-protocol-node
+```
+
+You can start the service with the following command:
+```bash
+starwave-node
+```
+
+Also you can configure the service with the following command:
+```bash
+starwave-node .dotenvConfig
+```

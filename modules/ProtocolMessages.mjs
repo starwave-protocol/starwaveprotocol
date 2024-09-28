@@ -144,10 +144,14 @@ export default class ProtocolMessages extends EventEmitter {
 
     async initNetworks() {
         for (let provider of this.NETWORK_PROVIDERS) {
-            await provider.init();
-            provider.on('message', async (message, options) => {
-                await this.process(message, options);
-            });
+            try {
+                await provider.init();
+                provider.on('message', async (message, options) => {
+                    await this.process(message, options);
+                });
+            }catch (e) {
+                Logger.error(`Failed to init network provider ${provider}`, e);
+            }
         }
     }
 

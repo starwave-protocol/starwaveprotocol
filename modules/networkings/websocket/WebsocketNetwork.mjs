@@ -138,6 +138,10 @@ export default class WebsocketNetwork extends AbstractNetworkingProvider {
         ws.on('close', () => {
             this.#socketClose(ws);
         });
+        ws.on('error', (e) => {
+            Logger.error('WS: connection error', e);
+            this.#socketClose(ws);
+        });
     }
 
     async #socketMessage(message, ws, server) {
@@ -152,7 +156,7 @@ export default class WebsocketNetwork extends AbstractNetworkingProvider {
             case WS_SERVICE_MESSAGE_TYPES.HANDSHAKE:
 
                 if(message.data.address === this.myAddress){
-                    console.error('Connection to myself. Closing connection');
+                    Logger.error('WS: Connection to myself. Closing connection');
                     ws.close();
                     return;
                 }
@@ -176,9 +180,9 @@ export default class WebsocketNetwork extends AbstractNetworkingProvider {
                     });
                     this.addressMap[message.data.address] = ws;
                     this.connectionsSockets.push(ws);
-                    Logger.log(`Connected to ${message.data.address}`);
+                    Logger.log(`WS: Connected to ${message.data.address}`);
                 } catch (e) {
-                    console.error('Error on handshake response', e);
+                    Logger.error('WS: Error on handshake response', e);
                 }
 
 
@@ -186,7 +190,7 @@ export default class WebsocketNetwork extends AbstractNetworkingProvider {
 
             case WS_SERVICE_MESSAGE_TYPES.STARWAVE_MESSAGE:
                 if(this.connectionsSockets.indexOf(ws) === -1){
-                    console.error('Message from not authorized peer. Ignoring', message);
+                    Logger.error('WS: Message from not authorized peer. Ignoring', message);
                     return;
                 }
                 let socketAddress = Object.keys(this.addressMap).find(key => this.addressMap[key] === ws);
@@ -195,19 +199,19 @@ export default class WebsocketNetwork extends AbstractNetworkingProvider {
                 break;
 
             default:
-                console.log('Unknown message. Ignoring', message);
+                Logger.log('WS: Unknown message. Ignoring', message);
         }
 
     }
 
     async #socketOpen(ws) {
-        console.log('WS socket open');
+        Logger.log('WS: socket open');
         ws.send(WSMessage.createHandshake(this.myAddress, this.validationMessage).json());
     }
 
     async #socketClose(ws) {
         //TODO: Peer reconnect
-        console.log('WS socket close');
+        Logger.log('WS: socket close');
         this.connectionsSockets = this.connectionsSockets.filter(socket => socket !== ws);
         this.addressMap = Object.keys(this.addressMap).reduce((acc, key) => {
             if (this.addressMap[key] !== ws) {
