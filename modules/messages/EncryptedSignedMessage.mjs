@@ -20,7 +20,7 @@ export default class EncryptedSignedMessage extends UnencryptedSignedMessage {
 
     static fromObject(obj) {
         let message = new EncryptedSignedMessage(obj);
-        message.hops = obj.hops;
+        message.hops = obj.hops || [];
         return message;
     }
 
