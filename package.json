@@ -1,13 +1,21 @@
 {
-  "name": "starwaveprotocol",
+  "name": "@starwave/starwave-protocol-node",
   "version": "1.0.0",
-  "description": "",
+  "description": "Official Starwave 2 Protocol node",
   "main": "index.mjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node --experimental-modules index.mjs"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Andrei Nedobylskii",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nedobylskiy/starwaveprotocol.git"
+  },
+  "bin": {
+    "stawave-node": "./index.mjs"
+  },
+  "license": "GPL-3.0",
   "dependencies": {
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
