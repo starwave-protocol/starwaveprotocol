@@ -85,15 +85,19 @@ export default class DHChannel extends EventEmitter {
                 return;
             }
 
-            let dhMessage = DHMessage.fromJson(message.message);
+            try {
+                let dhMessage = DHMessage.fromJson(message.message);
 
-            switch (dhMessage.type) {
-                case DH_CHANNEL_SERVICE_MESSAGE_TYPES.HANDSHAKE:
-                    await this.processHandshake(from, dhMessage.data);
-                    break;
-                case DH_CHANNEL_SERVICE_MESSAGE_TYPES.HANDSHAKE_RESPONSE:
-                    await this.processHandshakeResponse(from, dhMessage.data);
-                    break;
+                switch (dhMessage.type) {
+                    case DH_CHANNEL_SERVICE_MESSAGE_TYPES.HANDSHAKE:
+                        await this.processHandshake(from, dhMessage.data);
+                        break;
+                    case DH_CHANNEL_SERVICE_MESSAGE_TYPES.HANDSHAKE_RESPONSE:
+                        await this.processHandshakeResponse(from, dhMessage.data);
+                        break;
+                }
+            }catch (e) {
+                //Logger.error('Invalid DH message', e);
             }
         });
     }
