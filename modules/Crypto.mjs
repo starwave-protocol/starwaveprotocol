@@ -1,4 +1,4 @@
-import {createHash, createCipheriv, createDecipheriv, randomBytes} from 'crypto';
+import {createCipheriv, createDecipheriv, createHash, randomBytes} from 'crypto';
 
 const algorithm = 'aes-256-cbc';
 
@@ -28,5 +28,10 @@ export default class Crypto {
 
     static randomBytesString(length) {
         return randomBytes(length).toString('hex');
+    }
+
+    static generateMessageId() {
+        let randomNumber = Math.floor(Math.random() * 100000000);
+        return randomNumber.toString(16);
     }
 }

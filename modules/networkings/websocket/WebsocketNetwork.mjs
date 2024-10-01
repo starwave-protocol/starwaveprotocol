@@ -146,7 +146,7 @@ export default class WebsocketNetwork extends AbstractNetworkingProvider {
 
     async #socketMessage(message, ws, server) {
         message = WSMessage.fromJson(message);
-       // console.log('WS socket Message received', message);
+       console.log('WS socket Message received', message);
         switch (message.type) {
             case WS_SERVICE_MESSAGE_TYPES.PING:
                 ws.send(WSMessage.createPong().json());
@@ -164,7 +164,7 @@ export default class WebsocketNetwork extends AbstractNetworkingProvider {
                 let messageForSign = message.data.message;
                 let sign = await Web3Utils.signMessage({message: messageForSign, privateKey: this.myPrivateKey});
                 ws.send(WSMessage.createHandshakeResponse(this.myAddress, String(sign.signature).replace('0x', '')).json());
-
+                console.log('SEND');
                 if(server){
                     ws.send(WSMessage.createHandshake(this.myAddress, this.validationMessage).json());
                 }
@@ -173,14 +173,21 @@ export default class WebsocketNetwork extends AbstractNetworkingProvider {
             case WS_SERVICE_MESSAGE_TYPES.HANDSHAKE_RESPONSE:
 
                 try {
+                    console.log('WS: Handshake response', message.data, this.validationMessage);
                     await Web3Utils.verifySignature({
                         address: message.data.address,
                         message: this.validationMessage,
                         signature: message.data.sign
                     });
+                    console.log('WS: Handshake response verified');
                     this.addressMap[message.data.address] = ws;
                     this.connectionsSockets.push(ws);
                     Logger.log(`WS: Connected to ${message.data.address}`);
+                    setTimeout(() => {
+                        ws.send('{"a":123}');
+                    },1);
+
+                    //process.exit(0);
                 } catch (e) {
                     Logger.error('WS: Error on handshake response', e);
                 }
@@ -229,6 +236,8 @@ export default class WebsocketNetwork extends AbstractNetworkingProvider {
     }
 
     async broadcast(message, options = {exclude: []}) {
+        console.log('Broadcast message', this.connectionsSockets.length);
+        //options.exclude = [];
         let excludedSockets = options.exclude.map(address => this.addressMap[address]);
         //console.log('Broadcast message excluded', options.exclude);
         for (let ws of this.connectionsSockets) {
@@ -236,6 +245,8 @@ export default class WebsocketNetwork extends AbstractNetworkingProvider {
             if (excludedSockets.indexOf(ws) !== -1) {
                 continue;
             }
+
+            console.log('Broadcast message to', message, options.exclude);
 
             ws.send(WSMessage.createStarwaveMessage(message).json());
         }

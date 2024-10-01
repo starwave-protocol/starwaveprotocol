@@ -18,6 +18,16 @@ export default class ProtocolMessages extends EventEmitter {
         this.myPrivateKey = myPrivateKey;
         /** @type {NetworkMap} */
         this.networkMap = networkMap;
+        this.debounce = {};
+    }
+
+    #clearDebounce() {
+        let now = +Date.now();
+        for (let key in this.debounce) {
+            if (this.debounce[key] < now) {
+                delete this.debounce[key];
+            }
+        }
     }
 
     async process(message, options = {nodeAddress: null}) {
@@ -44,6 +54,15 @@ export default class ProtocolMessages extends EventEmitter {
         if (messageObject.isExpired()) {
             Logger.log(`Drop message from ${from} cuz it's expired`);
             return;
+        }
+
+        if(messageObject.id) {
+            if (this.debounce[messageObject.id]) {
+                Logger.log(`Drop message from ${from} cuz it's duplicate`);
+                return;
+            }
+
+            this.debounce[messageObject.id] = messageObject.timestamp;
         }
 
         try {
@@ -134,6 +153,8 @@ export default class ProtocolMessages extends EventEmitter {
             return;
         }
 
+
+        this.#clearDebounce();
 
         //TODO: Forward message to next hop
     }
