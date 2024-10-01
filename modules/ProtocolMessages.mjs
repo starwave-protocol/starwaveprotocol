@@ -56,12 +56,14 @@ export default class ProtocolMessages extends EventEmitter {
             return;
         }
 
-        if (this.debounce[messageObject.id]) {
-            Logger.log(`Drop message from ${from} cuz it's duplicate`);
-            return;
-        }
+        if(messageObject.id) {
+            if (this.debounce[messageObject.id]) {
+                Logger.log(`Drop message from ${from} cuz it's duplicate`);
+                return;
+            }
 
-        this.debounce[messageObject.id] = messageObject.timestamp;
+            this.debounce[messageObject.id] = messageObject.timestamp;
+        }
 
         try {
             await messageObject.verifySignature();
