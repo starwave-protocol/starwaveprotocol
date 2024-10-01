@@ -101,10 +101,10 @@ dhChannel.on('message', async (message) => {
 });
 
 //if (String(process.argv[2]).includes('3')) {
-setTimeout(async () => {
-    let secret = await dhChannel.connect('0xa75502d567ab67ff94e875015cee4440372aab10');
+setInterval(async () => {
+   // let secret = await dhChannel.connect('0xa75502d567ab67ff94e875015cee4440372aab10');
 
-    console.log('Secret', secret.toString('hex'));
+    //console.log('Secret', secret.toString('hex'));
 
     let message = new UnencryptedSignedMessage({
         message: 'Hello world',
@@ -115,7 +115,9 @@ setTimeout(async () => {
     });
 
 
-    await dhChannel.sendEncryptedMessage(message);
+    await messagesProcessor.broadcastMessage(message);
+
+//    await dhChannel.sendEncryptedMessage(message);
 
 
 }, 5000);

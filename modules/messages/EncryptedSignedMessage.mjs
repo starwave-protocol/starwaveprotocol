@@ -4,8 +4,8 @@ import UnencryptedSignedMessage from "./UnencryptedSignedMessage.mjs";
 import {MESSAGE_TYPES} from "../ProtocolMessages.mjs";
 
 export default class EncryptedSignedMessage extends UnencryptedSignedMessage {
-    constructor({signature, from, to, protocolVersion, timestamp, message}) {
-        super({message: message || '', signature, from, to, protocolVersion, timestamp});
+    constructor({signature, from, to, protocolVersion, timestamp, message, id}) {
+        super({message: message || '', signature, from, to, protocolVersion, timestamp, id});
         this.type = MESSAGE_TYPES.ENCRYPTED;
     }
 

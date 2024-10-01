@@ -4,7 +4,7 @@ import Crypto from "../Crypto.mjs";
 import {MESSAGE_TYPES} from "../ProtocolMessages.mjs";
 
 export default class UnencryptedSignedMessage {
-    constructor({message, signature, from, to, protocolVersion, timestamp, expectedRoute}) {
+    constructor({message, signature, from, to, protocolVersion, timestamp, expectedRoute, id}) {
 
         if (!from || !to) {
             throw new Error('Invalid message');
@@ -18,6 +18,11 @@ export default class UnencryptedSignedMessage {
             timestamp = +Date.now();
         }
 
+        if(!id) {
+            id = Crypto.generateMessageId();
+        }
+
+        this.id = id;
         this.message = message;
         this.signature = signature;
         this.from = from;
@@ -67,7 +72,7 @@ export default class UnencryptedSignedMessage {
     }
 
     #formatHashString() {
-        return `${EncodingUtils.serializeMessage(this.message)}-${this.from}-${this.to}-${this.protocolVersion}-${this.timestamp}`;
+        return `${this.id}-${EncodingUtils.serializeMessage(this.message)}-${this.from}-${this.to}-${this.protocolVersion}-${this.timestamp}`;
     }
 
     get hash() {
@@ -112,7 +117,8 @@ export default class UnencryptedSignedMessage {
             timestamp: this.timestamp,
             type: this.type,
             hops: this.hops,
-            expectedRoute: this.expectedRoute
+            expectedRoute: this.expectedRoute,
+            id: this.id
         };
     }
 }
