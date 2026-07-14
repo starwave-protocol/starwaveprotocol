@@ -1,0 +1,11 @@
+{
+  "name": "@starwave/core",
+  "version": "0.2.0",
+  "type": "module",
+  "exports": "./src/index.ts",
+  "dependencies": {
+    "@noble/curves": "^1.8.1",
+    "@noble/hashes": "^1.8.0",
+    "cbor-x": "^1.6.0"
+  }
+}

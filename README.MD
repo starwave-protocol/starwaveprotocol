@@ -1,35 +1,45 @@
 # StarWave Network Protocol
 
-Read this in other languages: [English](README.MD), [Русский](README_RU.MD)
+This repository now contains two layers of history:
 
-## Introduction
-### What is StarWave?
-Previously released as a part of iZ³ blockchain platform, StarWave is a messaging protocol provides you ability to create encrypted hi-speed channels between the nodes in p2p way.
+- the original JavaScript PoC at the repository root
+- the new TypeScript rework for the StarWave 2 reference node in `packages/*`
 
-The network is designed to be unbreakable and secure, and it is based on the principles of automatic routes building and data encryption. One of the main feature - the network works on top of plenty of other networks such as web2, Tor network and etc., so it can be used in any environment.
+## Rework status
 
-This is a reference implementation of the StarWave protocol node in Node.js.
+The `rework` branch introduces a new protocol v2 implementation with:
 
-### How it works?
+- protocol version `2` packets
+- immutable signed envelopes plus mutable forwarding metadata
+- route-hint based forwarding with discovery fallback
+- negotiated `CBOR` or `JSON` packet serialization after the first peer handshake
+- `secp256k1` origin signatures plus `x25519` peer session primitives
+- package split for `core`, `node`, and `transport-websocket`
+- docs, examples, and smoke tests
 
-![protocolScheme.svg](docs/protocolScheme.svg)
+## Workspace packages
 
-### Addresses and keys
-StarWave 2 uses a addresses and encryption keys based on Ethereum cryptography. The address is a 20 bytes long string, and the key is a 32 bytes long string. The address is used to identify the node in the network, and the key is used to encrypt the data.
+- `packages/core`
+- `packages/node`
+- `packages/transport-websocket`
 
-## Installation
+## Documentation
 
-### As service
+- [Implementation plan](docs/IMPLEMENTATION_PLAN.md)
+- [Core module](docs/modules/core.md)
+- [Node module](docs/modules/node.md)
+- [WebSocket transport module](docs/modules/transport-websocket.md)
+
+## Quick start
+
 ```bash
-npm install -g @starwave/starwave-protocol-node
+npm install
+npm run typecheck
+npm run smoke
+npm run example:two-nodes
 ```
 
-You can start the service with the following command:
-```bash
-starwave-node
-```
+## Examples
 
-Also you can configure the service with the following command:
-```bash
-starwave-node .dotenvConfig
-```
+- [Two nodes over WebSocket](examples/two-nodes.ts)
+- [Loading an external transport module](examples/load-external-plugin.ts)

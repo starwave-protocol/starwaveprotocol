@@ -1,0 +1,11 @@
+{
+  "name": "@starwave/transport-websocket",
+  "version": "0.2.0",
+  "type": "module",
+  "exports": "./src/index.ts",
+  "dependencies": {
+    "@starwave/core": "0.2.0",
+    "@starwave/node": "0.2.0",
+    "ws": "^8.18.3"
+  }
+}
