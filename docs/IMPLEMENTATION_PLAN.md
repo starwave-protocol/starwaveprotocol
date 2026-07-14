@@ -20,6 +20,8 @@ This branch introduces a new TypeScript reference implementation for StarWave 2 
   Node runtime, route store, replay cache, plugin host, and forwarding logic.
 - `packages/transport-websocket`
   Reference WebSocket transport plugin with transport handshake and codec negotiation.
+- `bin/starwave-node.ts`
+  Standalone bootstrap that reads config, instantiates node runtime, registers transports, and prints logs.
 
 ## Protocol Rework Decisions
 

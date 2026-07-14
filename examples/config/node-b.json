@@ -1,0 +1,24 @@
+{
+  "node": {
+    "privateKey": "0x2222222222222222222222222222222222222222222222222222222222222222",
+    "codecPreferences": ["json", "cbor"]
+  },
+  "transports": [
+    {
+      "type": "websocket",
+      "id": "ws-b",
+      "peers": ["ws://127.0.0.1:3711"],
+      "codecPreferences": ["json", "cbor"],
+      "protectFrames": false
+    }
+  ],
+  "startupMessages": [
+    {
+      "destination": "0x19e7e376e7c213b7e7e7e46cc70a5dd086daff2a",
+      "payload": {
+        "text": "hello from standalone node-b"
+      },
+      "delayMs": 1200
+    }
+  ]
+}

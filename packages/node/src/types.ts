@@ -32,6 +32,13 @@ export interface RegisteredTransport {
   onPacket(handler: (packet: StarwavePacket, context: IncomingPacketContext) => Promise<void> | void): void;
 }
 
+export interface LoggerLike {
+  debug(message: string, details?: Record<string, unknown>): void;
+  info(message: string, details?: Record<string, unknown>): void;
+  warn(message: string, details?: Record<string, unknown>): void;
+  error(message: string, details?: Record<string, unknown>): void;
+}
+
 export interface TransportPluginFactory {
   create(node: StarwaveNodeRuntime): RegisteredTransport | Promise<RegisteredTransport>;
 }
@@ -40,6 +47,7 @@ export interface StarwaveNodeOptions {
   identity: Identity;
   codecPreferences?: PreferredCodec[];
   enableTransportProtection?: boolean;
+  logger?: LoggerLike;
 }
 
 export interface ReceiveEvent<TPayload = unknown> {

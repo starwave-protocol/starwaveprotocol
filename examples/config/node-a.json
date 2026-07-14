@@ -1,0 +1,15 @@
+{
+  "node": {
+    "privateKey": "0x1111111111111111111111111111111111111111111111111111111111111111",
+    "codecPreferences": ["cbor", "json"]
+  },
+  "transports": [
+    {
+      "type": "websocket",
+      "id": "ws-a",
+      "listenPort": 3711,
+      "codecPreferences": ["cbor", "json"],
+      "protectFrames": false
+    }
+  ]
+}

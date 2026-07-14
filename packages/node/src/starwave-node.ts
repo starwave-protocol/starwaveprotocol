@@ -15,8 +15,10 @@ import {
 import { PluginHost } from "./plugin-host.js";
 import { ReplayCache } from "./replay-cache.js";
 import { RouteStore } from "./route-store.js";
+import { ConsoleLogger } from "./logger.js";
 import {
   IncomingPacketContext,
+  LoggerLike,
   PeerSessionRecord,
   ReceiveEvent,
   RegisteredTransport,
@@ -30,6 +32,7 @@ export class StarwaveNode extends EventEmitter implements StarwaveNodeRuntime {
   readonly routeStore = new RouteStore();
   readonly replayCache = new ReplayCache();
   readonly pluginHost: PluginHost;
+  readonly logger: LoggerLike;
 
   private readonly transports = new Map<string, RegisteredTransport>();
   private readonly sessions = new Map<string, PeerSessionRecord>();
@@ -38,11 +41,17 @@ export class StarwaveNode extends EventEmitter implements StarwaveNodeRuntime {
     super();
     this.identity = options.identity;
     this.address = options.identity.address;
+    this.logger = options.logger ?? new ConsoleLogger("starwave-node");
     this.pluginHost = new PluginHost(this);
   }
 
   rememberSession(session: PeerSessionRecord): void {
     this.sessions.set(session.peerAddress.toLowerCase(), session);
+    this.emit("sessionEstablished", {
+      peerAddress: session.peerAddress,
+      codec: session.selectedCodec,
+      transportId: session.transportId,
+    });
   }
 
   getSession(peerAddress: string): PeerSession | undefined {
@@ -55,6 +64,7 @@ export class StarwaveNode extends EventEmitter implements StarwaveNodeRuntime {
       await this.handleIncomingPacket(packet, context);
     });
     await transport.start();
+    this.emit("transportRegistered", { transportId: transport.id, peerCount: transport.getPeers().length });
   }
 
   async loadTransportModule(modulePath: string): Promise<void> {
@@ -93,6 +103,15 @@ export class StarwaveNode extends EventEmitter implements StarwaveNodeRuntime {
   }
 
   private async handleIncomingPacket(packet: StarwavePacket, context: IncomingPacketContext): Promise<void> {
+    this.emit("packetReceived", {
+      packetId: packet.envelope.packetId,
+      from: packet.envelope.source,
+      to: packet.envelope.destination,
+      transportId: context.transportId,
+      peerAddress: context.peerAddress,
+      deliveryMode: packet.forwarding.deliveryMode,
+    });
+
     const validation = validatePacketShape(packet);
     if (!validation.ok) {
       this.emit("warning", validation.reason);
@@ -146,6 +165,12 @@ export class StarwaveNode extends EventEmitter implements StarwaveNodeRuntime {
   private async forwardPacket(packet: StarwavePacket, options: { excludePeerAddresses?: string[] }): Promise<void> {
     const guidedNextHop = this.resolveGuidedNextHop(packet);
     if (guidedNextHop) {
+      this.emit("packetForwarded", {
+        packetId: packet.envelope.packetId,
+        destination: packet.envelope.destination,
+        nextHop: guidedNextHop,
+        mode: "guided",
+      });
       await this.sendToPeer(guidedNextHop, packet);
       this.routeStore.markUsed(packet.envelope.destination);
       return;
@@ -157,6 +182,12 @@ export class StarwaveNode extends EventEmitter implements StarwaveNodeRuntime {
     if (packet.forwarding.routeBroken) {
       this.routeStore.markBroken(packet.envelope.destination);
     }
+    this.emit("packetBroadcast", {
+      packetId: packet.envelope.packetId,
+      destination: packet.envelope.destination,
+      mode: "discovery",
+      routeBroken: packet.forwarding.routeBroken,
+    });
     await Promise.all(
       [...this.transports.values()].map((transport) =>
         transport.broadcast(packet, { excludePeerAddresses: options.excludePeerAddresses }),

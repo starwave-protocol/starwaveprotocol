@@ -19,16 +19,17 @@ import {
   unprotectFrame,
   verifyStringSignature,
 } from "@starwave/core";
-import { RegisteredTransport, StarwaveNode } from "@starwave/node";
+import { LoggerLike, RegisteredTransport, StarwaveNode } from "@starwave/node";
 import { RawData, WebSocket, WebSocketServer } from "ws";
 
-interface WebSocketTransportOptions {
+export interface WebSocketTransportOptions {
   id?: string;
   node: StarwaveNode;
   listenPort?: number;
   peers?: string[];
   codecPreferences?: PreferredCodec[];
   protectFrames?: boolean;
+  logger?: LoggerLike;
 }
 
 interface ActivePeer {
@@ -77,6 +78,7 @@ export class WebSocketTransport extends EventEmitter implements RegisteredTransp
   private readonly sessionKeyPair = createSessionKeyPair();
   private readonly bootstrapPeers: string[];
   private readonly listenPort?: number;
+  private readonly logger?: LoggerLike;
   private server?: WebSocketServer;
 
   constructor(options: WebSocketTransportOptions) {
@@ -87,17 +89,20 @@ export class WebSocketTransport extends EventEmitter implements RegisteredTransp
     this.bootstrapPeers = options.peers ?? [];
     this.codecPreferences = options.codecPreferences ?? ["cbor", "json"];
     this.protectFrames = options.protectFrames ?? false;
+    this.logger = options.logger;
   }
 
   async start(): Promise<void> {
     if (this.listenPort) {
       this.server = new WebSocketServer({ port: this.listenPort });
+      this.logger?.info("WebSocket server listening", { port: this.listenPort });
       this.server.on("connection", (socket: WebSocket) => {
         void this.attachSocket(socket, false);
       });
     }
 
     for (const peer of this.bootstrapPeers) {
+      this.logger?.info("Connecting to bootstrap peer", { peer });
       const socket = new WebSocket(peer);
       socket.on("open", () => {
         void this.attachSocket(socket, true);
@@ -175,6 +180,7 @@ export class WebSocketTransport extends EventEmitter implements RegisteredTransp
     socket.on("close", () => {
       const peer = this.socketIndex.get(socket);
       if (peer) {
+        this.logger?.info("Peer disconnected", { peerAddress: peer.address, codec: peer.codec });
         this.peers.delete(peer.address);
         this.socketIndex.delete(socket);
       }
@@ -275,6 +281,10 @@ export class WebSocketTransport extends EventEmitter implements RegisteredTransp
       this.peers.set(peer.address, peer);
       this.socketIndex.set(socket, peer);
       this.node.rememberSession({ ...session, transportId: this.id });
+      this.logger?.info("Inbound peer handshake completed", {
+        peerAddress: peer.address,
+        codec: selectedCodec,
+      });
 
       const ack = createHelloAck({
         nodeAddress: this.node.address,
@@ -303,6 +313,10 @@ export class WebSocketTransport extends EventEmitter implements RegisteredTransp
     this.peers.set(peer.address, peer);
     this.socketIndex.set(socket, peer);
     this.node.rememberSession({ ...session, transportId: this.id });
+    this.logger?.info("Outbound peer handshake acknowledged", {
+      peerAddress: peer.address,
+      codec: message.selectedCodec,
+    });
 
     // Ack verification is intentionally lightweight in this first reference pass.
     const ackIsValid = verifyStringSignature(

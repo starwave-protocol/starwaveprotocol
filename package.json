@@ -9,8 +9,10 @@
   ],
   "scripts": {
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "smoke": "tsx tests/smoke/run-smoke.ts",
-    "example:two-nodes": "tsx examples/two-nodes.ts"
+    "smoke": "tsx tests/smoke/run-smoke.ts && tsx tests/smoke/run-standalone-smoke.ts",
+    "example:two-nodes": "tsx examples/two-nodes.ts",
+    "example:standalone": "tsx examples/standalone-demo.ts",
+    "start:node": "tsx bin/starwave-node.ts"
   },
   "author": "Andrei Nedobylskii",
   "repository": {
