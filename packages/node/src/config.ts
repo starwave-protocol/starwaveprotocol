@@ -20,11 +20,25 @@ export interface StartupMessageConfig {
   delayMs?: number;
 }
 
+export interface StandaloneApiConfig {
+  enabled?: boolean;
+  host?: string;
+  port?: number;
+}
+
 export interface StandaloneNodeConfig {
   node: {
     privateKey?: string;
     codecPreferences?: PreferredCodec[];
+    peerExchangeEnabled?: boolean;
+    discovery?: {
+      ttlMs?: number;
+      minBroadcastIntervalMs?: number;
+      initialBroadcastDelayMs?: number;
+      rebroadcastDelayMs?: number;
+    };
   };
+  api?: StandaloneApiConfig;
   transports?: WebSocketTransportConfig[];
   plugins?: ExternalTransportPluginConfig[];
   startupMessages?: StartupMessageConfig[];

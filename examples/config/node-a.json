@@ -1,7 +1,19 @@
 {
   "node": {
     "privateKey": "0x1111111111111111111111111111111111111111111111111111111111111111",
-    "codecPreferences": ["cbor", "json"]
+    "codecPreferences": ["cbor", "json"],
+    "peerExchangeEnabled": true,
+    "discovery": {
+      "ttlMs": 90000,
+      "minBroadcastIntervalMs": 200,
+      "initialBroadcastDelayMs": 40,
+      "rebroadcastDelayMs": 120
+    }
+  },
+  "api": {
+    "enabled": true,
+    "host": "127.0.0.1",
+    "port": 3091
   },
   "transports": [
     {

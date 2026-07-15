@@ -21,6 +21,7 @@ class DemoLogger implements LoggerLike {
 
 class DemoTransport implements RegisteredTransport {
   readonly id = "demo-network";
+  readonly transportType = "demo";
 
   private readonly logger: LoggerLike;
   private readonly node: StarwaveNodeRuntime;
@@ -66,7 +67,7 @@ class DemoTransport implements RegisteredTransport {
     return false;
   }
 
-  getPeers(): { address: string }[] {
+  getPeers(): { address: string; transportType: string }[] {
     return [];
   }
 

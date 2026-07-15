@@ -3,6 +3,7 @@ import { dirname, resolve } from "node:path";
 import { createIdentity, PreferredCodec } from "@starwave/core";
 import { WebSocketTransport } from "@starwave/transport-websocket";
 import { ConsoleLogger, childLogger } from "./logger.js";
+import { StandaloneApiServer } from "./standalone-api.js";
 import { StarwaveNode } from "./starwave-node.js";
 import { LoggerLike } from "./types.js";
 import { StandaloneNodeConfig } from "./config.js";
@@ -10,6 +11,7 @@ import { StandaloneNodeConfig } from "./config.js";
 export interface StandaloneRuntime {
   config: StandaloneNodeConfig;
   node: StarwaveNode;
+  api?: StandaloneApiServer;
   stop(): Promise<void>;
 }
 
@@ -28,8 +30,11 @@ export async function createStandaloneRuntime(
   const node = new StarwaveNode({
     identity,
     codecPreferences: config.node.codecPreferences as PreferredCodec[] | undefined,
+    peerExchangeEnabled: config.node.peerExchangeEnabled,
+    discovery: config.node.discovery,
     logger,
   });
+  let api: StandaloneApiServer | undefined;
 
   attachNodeLogging(node, logger);
 
@@ -68,11 +73,18 @@ export async function createStandaloneRuntime(
     }, message.delayMs ?? 500);
   }
 
+  if (config.api?.enabled) {
+    api = new StandaloneApiServer(node, config.api, childLogger(logger, "api"));
+    await api.start();
+  }
+
   return {
     config,
     node,
+    api,
     async stop() {
       logger.info("Stopping standalone node", { address: node.address });
+      await api?.stop();
       await node.stop();
     },
   };
@@ -115,5 +127,11 @@ function attachNodeLogging(node: StarwaveNode, logger: LoggerLike): void {
   });
   node.on("packetBroadcast", (details) => {
     logger.info("Packet broadcast in discovery mode", details as Record<string, unknown>);
+  });
+  node.on("peerExchangeProcessed", (details) => {
+    logger.info("Peer exchange processed", details as Record<string, unknown>);
+  });
+  node.on("routeReplyProcessed", (details) => {
+    logger.info("Route reply processed", details as Record<string, unknown>);
   });
 }

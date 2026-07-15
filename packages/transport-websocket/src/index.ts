@@ -68,6 +68,7 @@ function unwrapProtectedFrame(raw: string): ProtectedFrame {
 
 export class WebSocketTransport extends EventEmitter implements RegisteredTransport {
   readonly id: string;
+  readonly transportType = "websocket";
 
   private readonly node: StarwaveNode;
   private readonly peers = new Map<string, ActivePeer>();
@@ -151,8 +152,8 @@ export class WebSocketTransport extends EventEmitter implements RegisteredTransp
     return this.peers.has(peerAddress.toLowerCase());
   }
 
-  getPeers(): { address: string }[] {
-    return [...this.peers.values()].map((peer) => ({ address: peer.address }));
+  getPeers(): { address: string; transportType: string }[] {
+    return [...this.peers.values()].map((peer) => ({ address: peer.address, transportType: this.transportType }));
   }
 
   private async attachSocket(socket: WebSocket, initiator: boolean): Promise<void> {
@@ -280,7 +281,7 @@ export class WebSocketTransport extends EventEmitter implements RegisteredTransp
       };
       this.peers.set(peer.address, peer);
       this.socketIndex.set(socket, peer);
-      this.node.rememberSession({ ...session, transportId: this.id });
+      this.node.rememberSession({ ...session, transportId: this.id, transportType: this.transportType });
       this.logger?.info("Inbound peer handshake completed", {
         peerAddress: peer.address,
         codec: selectedCodec,
@@ -312,7 +313,7 @@ export class WebSocketTransport extends EventEmitter implements RegisteredTransp
     };
     this.peers.set(peer.address, peer);
     this.socketIndex.set(socket, peer);
-    this.node.rememberSession({ ...session, transportId: this.id });
+    this.node.rememberSession({ ...session, transportId: this.id, transportType: this.transportType });
     this.logger?.info("Outbound peer handshake acknowledged", {
       peerAddress: peer.address,
       codec: message.selectedCodec,

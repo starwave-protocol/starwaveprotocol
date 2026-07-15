@@ -8,6 +8,28 @@ export interface RouteHintRecord {
   lastUsedAt: number;
 }
 
+export interface DiscoveryPolicy {
+  ttlMs: number;
+  minBroadcastIntervalMs: number;
+  initialBroadcastDelayMs: number;
+  rebroadcastDelayMs: number;
+}
+
+export type PeerTrustLevel = "trusted" | "untrusted";
+export type PeerReachability = "connected" | "discovered";
+
+export interface PeerRecord {
+  address: string;
+  transportType: string;
+  reachability: PeerReachability;
+  trust: PeerTrustLevel;
+  hops: number;
+  via?: string;
+  learnedAt: number;
+  lastSeenAt: number;
+  expiresAt: number;
+}
+
 export interface IncomingPacketContext {
   transportId: string;
   peerAddress?: string;
@@ -19,10 +41,12 @@ export interface OutgoingPacketContext {
 
 export interface TransportPeerSnapshot {
   address: string;
+  transportType: string;
 }
 
 export interface RegisteredTransport {
   id: string;
+  transportType: string;
   start(): Promise<void>;
   stop(): Promise<void>;
   send(peerAddress: string, packet: StarwavePacket): Promise<void>;
@@ -47,6 +71,8 @@ export interface StarwaveNodeOptions {
   identity: Identity;
   codecPreferences?: PreferredCodec[];
   enableTransportProtection?: boolean;
+  peerExchangeEnabled?: boolean;
+  discovery?: Partial<DiscoveryPolicy>;
   logger?: LoggerLike;
 }
 
@@ -56,6 +82,7 @@ export interface ReceiveEvent<TPayload = unknown> {
 
 export interface PeerSessionRecord extends PeerSession {
   transportId: string;
+  transportType: string;
 }
 
 // Forward declaration for plugin factories.

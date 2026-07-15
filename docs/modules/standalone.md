@@ -15,6 +15,9 @@ The standalone bootstrap turns the StarWave 2 runtime into a daemon-style proces
 The standalone config supports:
 
 - node identity
+- optional HTTP API
+- discovery policy tuning
+- peer exchange enable/disable
 - codec preferences
 - built-in WebSocket transports
 - external plugin module paths
@@ -31,3 +34,28 @@ The bootstrap prints:
 - codec negotiation and session establishment
 - packet receive, forward, and discovery fallback
 - warning and error events
+
+## HTTP API
+
+When `api.enabled` is set in config, the standalone node starts a small JSON HTTP API.
+
+Current endpoints:
+
+- `GET /`
+- `GET /health`
+- `GET /node`
+- `GET /routes`
+- `GET /routes/:destination`
+- `POST /messages/:destination`
+- `POST /packets`
+
+## Discovery controls
+
+The node config can tune discovery behavior:
+
+- `node.discovery.ttlMs`
+- `node.discovery.minBroadcastIntervalMs`
+- `node.discovery.initialBroadcastDelayMs`
+- `node.discovery.rebroadcastDelayMs`
+
+This lets discovery packets live longer while still reducing flood pressure by spacing out broadcast attempts.

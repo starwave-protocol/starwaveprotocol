@@ -60,6 +60,8 @@ It:
 
 - reads a JSON config file
 - creates or restores the node identity
+- can start an HTTP API
+- supports configurable discovery TTL/throttling
 - instantiates built-in transports from config
 - loads external transport plugin modules
 - prints runtime logs for startup, handshake, packet forwarding, and delivery
