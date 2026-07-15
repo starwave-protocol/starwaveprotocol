@@ -20,6 +20,7 @@ import {
   verifyStringSignature,
 } from "@starwave/core";
 import { LoggerLike, RegisteredTransport, StarwaveNode } from "@starwave/node";
+import { ProxyAgent } from "proxy-agent";
 import { RawData, WebSocket, WebSocketServer } from "ws";
 
 export interface WebSocketTransportOptions {
@@ -27,6 +28,7 @@ export interface WebSocketTransportOptions {
   node: StarwaveNode;
   listenPort?: number;
   peers?: string[];
+  proxyUrl?: string;
   codecPreferences?: PreferredCodec[];
   protectFrames?: boolean;
   logger?: LoggerLike;
@@ -78,8 +80,10 @@ export class WebSocketTransport extends EventEmitter implements RegisteredTransp
   private readonly protectFrames: boolean;
   private readonly sessionKeyPair = createSessionKeyPair();
   private readonly bootstrapPeers: string[];
+  private readonly proxyUrl?: string;
   private readonly listenPort?: number;
   private readonly logger?: LoggerLike;
+  private readonly proxyAgent?: ProxyAgent;
   private server?: WebSocketServer;
 
   constructor(options: WebSocketTransportOptions) {
@@ -88,9 +92,15 @@ export class WebSocketTransport extends EventEmitter implements RegisteredTransp
     this.node = options.node;
     this.listenPort = options.listenPort;
     this.bootstrapPeers = options.peers ?? [];
+    this.proxyUrl = options.proxyUrl;
     this.codecPreferences = options.codecPreferences ?? ["cbor", "json"];
     this.protectFrames = options.protectFrames ?? false;
     this.logger = options.logger;
+    this.proxyAgent = this.proxyUrl
+      ? new ProxyAgent({
+        getProxyForUrl: () => this.proxyUrl as string,
+      })
+      : undefined;
   }
 
   async start(): Promise<void> {
@@ -103,8 +113,13 @@ export class WebSocketTransport extends EventEmitter implements RegisteredTransp
     }
 
     for (const peer of this.bootstrapPeers) {
-      this.logger?.info("Connecting to bootstrap peer", { peer });
-      const socket = new WebSocket(peer);
+      this.logger?.info("Connecting to bootstrap peer", {
+        peer,
+        viaProxy: Boolean(this.proxyUrl),
+      });
+      const socket = this.proxyAgent
+        ? new WebSocket(peer, { agent: this.proxyAgent })
+        : new WebSocket(peer);
       socket.on("open", () => {
         void this.attachSocket(socket, true);
       });

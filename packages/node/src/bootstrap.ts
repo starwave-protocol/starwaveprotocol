@@ -132,6 +132,7 @@ async function registerBuiltinWebSocketTransport(
     id: transportConfig.id,
     listenPort: transportConfig.config?.listenPort,
     peers: transportConfig.config?.peers,
+    proxyUrl: transportConfig.config?.proxyUrl,
     codecPreferences: transportConfig.config?.codecPreferences,
     protectFrames: transportConfig.config?.protectFrames,
     logger: childLogger(logger, `transport:${transportConfig.id ?? "websocket"}`),

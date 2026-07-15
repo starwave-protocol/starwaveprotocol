@@ -15,3 +15,4 @@
 - The transport always begins with a plain JSON hello.
 - Peers select the first mutually supported codec.
 - The transport exposes peer connectivity to the node so guided routing can prefer established links.
+- Outbound bootstrap connections can optionally use `config.proxyUrl` with standard proxy URLs such as `http://`, `https://`, or `socks5://`.

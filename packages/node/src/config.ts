@@ -6,6 +6,7 @@ export interface WebSocketTransportConfig {
   config?: {
     listenPort?: number;
     peers?: string[];
+    proxyUrl?: string;
     codecPreferences?: PreferredCodec[];
     protectFrames?: boolean;
   };

@@ -6,6 +6,7 @@
   "dependencies": {
     "@starwave/core": "0.2.0",
     "@starwave/node": "0.2.0",
+    "proxy-agent": "^6.5.0",
     "ws": "^8.18.3"
   }
 }

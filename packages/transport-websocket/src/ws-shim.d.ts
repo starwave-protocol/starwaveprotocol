@@ -2,9 +2,13 @@ declare module "ws" {
   import { EventEmitter } from "node:events";
 
   export type RawData = Buffer | ArrayBuffer | Buffer[];
+  export interface WebSocketClientOptions {
+    agent?: unknown;
+  }
 
   export class WebSocket extends EventEmitter {
     constructor(address: string);
+    constructor(address: string, options: WebSocketClientOptions);
     send(data: string | Buffer): void;
     close(): void;
     on(event: "open", listener: () => void): this;

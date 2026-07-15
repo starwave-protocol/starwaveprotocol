@@ -29,6 +29,21 @@ Plugin transport sources can be:
 - local files via `source.kind = "path"`
 - installed npm packages via `source.kind = "package"`
 
+Built-in `websocket` transports also support optional outbound proxying through `config.proxyUrl`. This is applied only to connections created from `config.peers`; the local listener continues accepting direct inbound WebSocket sessions.
+
+Example:
+
+```json
+{
+  "type": "websocket",
+  "id": "ws-b",
+  "config": {
+    "peers": ["ws://example-peer:3711"],
+    "proxyUrl": "socks5://127.0.0.1:1080"
+  }
+}
+```
+
 ## Logging
 
 The bootstrap prints:
