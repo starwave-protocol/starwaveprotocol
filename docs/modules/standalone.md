@@ -20,6 +20,8 @@ The standalone config supports:
 - external plugin module paths
 - optional startup messages for demos and smoke tests
 
+The repository ships with a simple external demo transport at [plugins/networks/demo](C:/Users/jhony/Documents/StarwaveProtocol/plugins/networks/demo) that shows the plugin contract without creating a real network.
+
 ## Logging
 
 The bootstrap prints:

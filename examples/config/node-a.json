@@ -11,5 +11,11 @@
       "codecPreferences": ["cbor", "json"],
       "protectFrames": false
     }
+  ],
+  "plugins": [
+    {
+      "type": "external",
+      "modulePath": "../../plugins/networks/demo/index.ts"
+    }
   ]
 }

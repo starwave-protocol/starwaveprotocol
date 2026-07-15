@@ -46,6 +46,7 @@ npm run example:standalone
 - [Two nodes over WebSocket](examples/two-nodes.ts)
 - [Loading an external transport module](examples/load-external-plugin.ts)
 - [Standalone node demo](examples/standalone-demo.ts)
+- [Demo external plugin](plugins/networks/demo/README.md)
 
 ## Standalone Node
 
