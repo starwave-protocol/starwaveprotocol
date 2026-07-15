@@ -11,6 +11,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "smoke": "tsx tests/smoke/run-smoke.ts && tsx tests/smoke/run-standalone-smoke.ts && tsx tests/smoke/run-standalone-api-smoke.ts && tsx tests/smoke/run-peer-exchange-smoke.ts && tsx tests/smoke/run-route-reply-smoke.ts",
     "example:two-nodes": "tsx examples/two-nodes.ts",
+    "example:audio-virtual": "tsx examples/audio-virtual-two-standalone.ts",
     "example:standalone": "tsx examples/standalone-demo.ts",
     "start:node": "tsx bin/starwave-node.ts"
   },
