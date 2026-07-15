@@ -26,6 +26,7 @@ The current implementation includes:
 ## Documentation
 
 - [Implementation plan](docs/IMPLEMENTATION_PLAN.md)
+- [Built-in messages](docs/PROTOCOL_MESSAGES.md)
 - [Core module](docs/modules/core.md)
 - [Node module](docs/modules/node.md)
 - [WebSocket transport module](docs/modules/transport-websocket.md)
