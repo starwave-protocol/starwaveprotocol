@@ -19,15 +19,22 @@
     {
       "type": "websocket",
       "id": "ws-a",
-      "listenPort": 3711,
-      "codecPreferences": ["cbor", "json"],
-      "protectFrames": false
-    }
-  ],
-  "plugins": [
+      "config": {
+        "listenPort": 3711,
+        "codecPreferences": ["cbor", "json"],
+        "protectFrames": false
+      }
+    },
     {
-      "type": "external",
-      "modulePath": "../../plugins/networks/demo/index.ts"
+      "type": "plugin",
+      "id": "demo-local",
+      "source": {
+        "kind": "path",
+        "path": "../../plugins/networks/demo/index.ts"
+      },
+      "config": {
+        "label": "demo transport from config"
+      }
     }
   ]
 }

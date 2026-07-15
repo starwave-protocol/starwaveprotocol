@@ -64,7 +64,14 @@ export interface LoggerLike {
 }
 
 export interface TransportPluginFactory {
-  create(node: StarwaveNodeRuntime): RegisteredTransport | Promise<RegisteredTransport>;
+  create(context: TransportPluginContext): RegisteredTransport | Promise<RegisteredTransport>;
+}
+
+export interface TransportPluginContext {
+  node: StarwaveNodeRuntime;
+  transportId?: string;
+  config?: Record<string, unknown>;
+  logger?: LoggerLike;
 }
 
 export interface StarwaveNodeOptions {

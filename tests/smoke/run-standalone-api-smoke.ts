@@ -21,9 +21,11 @@ async function run(): Promise<void> {
     transports: [
       {
         type: "websocket",
-        listenPort: wsPort,
-        codecPreferences: ["cbor", "json"],
-        protectFrames: false,
+        config: {
+          listenPort: wsPort,
+          codecPreferences: ["cbor", "json"],
+          protectFrames: false,
+        },
       },
     ],
   };
@@ -36,9 +38,11 @@ async function run(): Promise<void> {
     transports: [
       {
         type: "websocket",
-        peers: [`ws://127.0.0.1:${wsPort}`],
-        codecPreferences: ["json", "cbor"],
-        protectFrames: false,
+        config: {
+          peers: [`ws://127.0.0.1:${wsPort}`],
+          codecPreferences: ["json", "cbor"],
+          protectFrames: false,
+        },
       },
     ],
   };

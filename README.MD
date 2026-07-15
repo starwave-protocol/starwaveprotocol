@@ -62,6 +62,6 @@ It:
 - creates or restores the node identity
 - can start an HTTP API
 - supports configurable discovery TTL/throttling
-- instantiates built-in transports from config
-- loads external transport plugin modules
+- instantiates built-in transports from a unified `transports` list
+- loads transport plugins from local paths or installed npm packages
 - prints runtime logs for startup, handshake, packet forwarding, and delivery

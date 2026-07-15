@@ -7,7 +7,7 @@ The standalone bootstrap turns the StarWave 2 runtime into a daemon-style proces
 - Read a JSON config file
 - Initialize identity from a configured private key or generate one
 - Build built-in transports from config
-- Load external transport plugin modules
+- Load external transport plugin modules from file paths or installed npm packages
 - Attach structured logs to node and transport lifecycle events
 
 ## Config model
@@ -19,11 +19,15 @@ The standalone config supports:
 - discovery policy tuning
 - peer exchange enable/disable
 - codec preferences
-- built-in WebSocket transports
-- external plugin module paths
+- unified `transports` entries for built-in and plugin transports
 - optional startup messages for demos and smoke tests
 
 The repository ships with a simple external demo transport at [plugins/networks/demo](C:/Users/jhony/Documents/StarwaveProtocol/plugins/networks/demo) that shows the plugin contract without creating a real network.
+
+Plugin transport sources can be:
+
+- local files via `source.kind = "path"`
+- installed npm packages via `source.kind = "package"`
 
 ## Logging
 

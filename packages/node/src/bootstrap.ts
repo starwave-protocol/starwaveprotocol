@@ -6,7 +6,7 @@ import { ConsoleLogger, childLogger } from "./logger.js";
 import { StandaloneApiServer } from "./standalone-api.js";
 import { StarwaveNode } from "./starwave-node.js";
 import { LoggerLike } from "./types.js";
-import { StandaloneNodeConfig } from "./config.js";
+import { PluginTransportConfig, StandaloneNodeConfig, WebSocketTransportConfig } from "./config.js";
 
 export interface StandaloneRuntime {
   config: StandaloneNodeConfig;
@@ -41,30 +41,16 @@ export async function createStandaloneRuntime(
   logger.info("Node identity ready", { address: node.address });
 
   for (const transportConfig of config.transports ?? []) {
-    if (transportConfig.type !== "websocket") {
+    if (transportConfig.type === "websocket") {
+      await registerBuiltinWebSocketTransport(node, transportConfig, logger);
       continue;
     }
 
-    const transport = new WebSocketTransport({
-      node,
-      id: transportConfig.id,
-      listenPort: transportConfig.listenPort,
-      peers: transportConfig.peers,
-      codecPreferences: transportConfig.codecPreferences,
-      protectFrames: transportConfig.protectFrames,
-      logger: childLogger(logger, `transport:${transportConfig.id ?? "websocket"}`),
-    });
-    await node.registerTransport(transport);
-  }
-
-  for (const plugin of config.plugins ?? []) {
-    if (plugin.type !== "external") {
+    if (transportConfig.type !== "plugin") {
       continue;
     }
 
-    const modulePath = options?.baseDir ? resolve(options.baseDir, plugin.modulePath) : resolve(plugin.modulePath);
-    logger.info("Loading external transport plugin", { modulePath });
-    await node.loadTransportModule(modulePath);
+    await registerPluginTransport(node, transportConfig, logger, options?.baseDir);
   }
 
   for (const message of config.startupMessages ?? []) {
@@ -133,5 +119,51 @@ function attachNodeLogging(node: StarwaveNode, logger: LoggerLike): void {
   });
   node.on("routeReplyProcessed", (details) => {
     logger.info("Route reply processed", details as Record<string, unknown>);
+  });
+}
+
+async function registerBuiltinWebSocketTransport(
+  node: StarwaveNode,
+  transportConfig: WebSocketTransportConfig,
+  logger: LoggerLike,
+): Promise<void> {
+  const transport = new WebSocketTransport({
+    node,
+    id: transportConfig.id,
+    listenPort: transportConfig.config?.listenPort,
+    peers: transportConfig.config?.peers,
+    codecPreferences: transportConfig.config?.codecPreferences,
+    protectFrames: transportConfig.config?.protectFrames,
+    logger: childLogger(logger, `transport:${transportConfig.id ?? "websocket"}`),
+  });
+  await node.registerTransport(transport);
+}
+
+async function registerPluginTransport(
+  node: StarwaveNode,
+  transportConfig: PluginTransportConfig,
+  logger: LoggerLike,
+  baseDir?: string,
+): Promise<void> {
+  const pluginLogger = childLogger(logger, `transport:${transportConfig.id ?? "plugin"}`);
+  if (transportConfig.source.kind === "path") {
+    const modulePath = baseDir ? resolve(baseDir, transportConfig.source.path) : resolve(transportConfig.source.path);
+    logger.info("Loading external transport plugin", { modulePath, transportId: transportConfig.id });
+    await node.loadTransportModule(modulePath, {
+      transportId: transportConfig.id,
+      config: transportConfig.config,
+      logger: pluginLogger,
+    });
+    return;
+  }
+
+  logger.info("Loading transport plugin package", {
+    packageName: transportConfig.source.name,
+    transportId: transportConfig.id,
+  });
+  await node.loadTransportPackage(transportConfig.source.name, {
+    transportId: transportConfig.id,
+    config: transportConfig.config,
+    logger: pluginLogger,
   });
 }

@@ -112,8 +112,19 @@ export class StarwaveNode extends EventEmitter implements StarwaveNodeRuntime {
     this.emit("transportRegistered", { transportId: transport.id, peerCount: transport.getPeers().length });
   }
 
-  async loadTransportModule(modulePath: string): Promise<void> {
-    const transport = await this.pluginHost.loadFromModule(modulePath);
+  async loadTransportModule(
+    modulePath: string,
+    options?: { transportId?: string; config?: Record<string, unknown>; logger?: LoggerLike },
+  ): Promise<void> {
+    const transport = await this.pluginHost.loadFromModule(modulePath, options);
+    await this.registerTransport(transport);
+  }
+
+  async loadTransportPackage(
+    packageName: string,
+    options?: { transportId?: string; config?: Record<string, unknown>; logger?: LoggerLike },
+  ): Promise<void> {
+    const transport = await this.pluginHost.loadFromPackage(packageName, options);
     await this.registerTransport(transport);
   }
 

@@ -3,15 +3,29 @@ import { PreferredCodec } from "@starwave/core";
 export interface WebSocketTransportConfig {
   type: "websocket";
   id?: string;
-  listenPort?: number;
-  peers?: string[];
-  codecPreferences?: PreferredCodec[];
-  protectFrames?: boolean;
+  config?: {
+    listenPort?: number;
+    peers?: string[];
+    codecPreferences?: PreferredCodec[];
+    protectFrames?: boolean;
+  };
 }
 
-export interface ExternalTransportPluginConfig {
-  type: "external";
-  modulePath: string;
+export interface PluginTransportSourceByPath {
+  kind: "path";
+  path: string;
+}
+
+export interface PluginTransportSourceByPackage {
+  kind: "package";
+  name: string;
+}
+
+export interface PluginTransportConfig {
+  type: "plugin";
+  id?: string;
+  source: PluginTransportSourceByPath | PluginTransportSourceByPackage;
+  config?: Record<string, unknown>;
 }
 
 export interface StartupMessageConfig {
@@ -39,7 +53,6 @@ export interface StandaloneNodeConfig {
     };
   };
   api?: StandaloneApiConfig;
-  transports?: WebSocketTransportConfig[];
-  plugins?: ExternalTransportPluginConfig[];
+  transports?: Array<WebSocketTransportConfig | PluginTransportConfig>;
   startupMessages?: StartupMessageConfig[];
 }

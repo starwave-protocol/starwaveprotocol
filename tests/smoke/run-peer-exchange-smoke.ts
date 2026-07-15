@@ -11,25 +11,29 @@ async function run(): Promise<void> {
 
   const configA: StandaloneNodeConfig = {
     node: { privateKey: nodeAIdentity.privateKey, codecPreferences: ["cbor", "json"] },
-    transports: [{ type: "websocket", listenPort: portA, codecPreferences: ["cbor", "json"], protectFrames: false }],
+    transports: [{ type: "websocket", config: { listenPort: portA, codecPreferences: ["cbor", "json"], protectFrames: false } }],
   };
   const configB: StandaloneNodeConfig = {
     node: { privateKey: nodeBIdentity.privateKey, codecPreferences: ["json", "cbor"] },
     transports: [{
       type: "websocket",
-      listenPort: portB,
-      peers: [`ws://127.0.0.1:${portA}`],
-      codecPreferences: ["json", "cbor"],
-      protectFrames: false,
+      config: {
+        listenPort: portB,
+        peers: [`ws://127.0.0.1:${portA}`],
+        codecPreferences: ["json", "cbor"],
+        protectFrames: false,
+      },
     }],
   };
   const configC: StandaloneNodeConfig = {
     node: { privateKey: nodeCIdentity.privateKey, codecPreferences: ["cbor", "json"] },
     transports: [{
       type: "websocket",
-      peers: [`ws://127.0.0.1:${portB}`],
-      codecPreferences: ["cbor", "json"],
-      protectFrames: false,
+      config: {
+        peers: [`ws://127.0.0.1:${portB}`],
+        codecPreferences: ["cbor", "json"],
+        protectFrames: false,
+      },
     }],
   };
 

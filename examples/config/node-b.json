@@ -7,9 +7,11 @@
     {
       "type": "websocket",
       "id": "ws-b",
-      "peers": ["ws://127.0.0.1:3711"],
-      "codecPreferences": ["json", "cbor"],
-      "protectFrames": false
+      "config": {
+        "peers": ["ws://127.0.0.1:3711"],
+        "codecPreferences": ["json", "cbor"],
+        "protectFrames": false
+      }
     }
   ],
   "startupMessages": [

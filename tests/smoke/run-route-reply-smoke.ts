@@ -23,7 +23,7 @@ async function run(): Promise<void> {
       peerExchangeEnabled: false,
       discovery: commonDiscovery,
     },
-    transports: [{ type: "websocket", listenPort: portA, codecPreferences: ["cbor", "json"], protectFrames: false }],
+    transports: [{ type: "websocket", config: { listenPort: portA, codecPreferences: ["cbor", "json"], protectFrames: false } }],
   };
   const configB: StandaloneNodeConfig = {
     node: {
@@ -34,10 +34,12 @@ async function run(): Promise<void> {
     },
     transports: [{
       type: "websocket",
-      listenPort: portB,
-      peers: [`ws://127.0.0.1:${portA}`],
-      codecPreferences: ["json", "cbor"],
-      protectFrames: false,
+      config: {
+        listenPort: portB,
+        peers: [`ws://127.0.0.1:${portA}`],
+        codecPreferences: ["json", "cbor"],
+        protectFrames: false,
+      },
     }],
   };
   const configC: StandaloneNodeConfig = {
@@ -49,9 +51,11 @@ async function run(): Promise<void> {
     },
     transports: [{
       type: "websocket",
-      peers: [`ws://127.0.0.1:${portB}`],
-      codecPreferences: ["cbor", "json"],
-      protectFrames: false,
+      config: {
+        peers: [`ws://127.0.0.1:${portB}`],
+        codecPreferences: ["cbor", "json"],
+        protectFrames: false,
+      },
     }],
   };
 

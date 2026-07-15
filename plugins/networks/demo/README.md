@@ -7,7 +7,7 @@ This is the StarWave 2 external transport demo plugin for the reworked runtime.
 It is a minimal external transport module that implements the new `RegisteredTransport` contract and can be loaded through:
 
 - `node.loadTransportModule(...)`
-- the standalone bootstrap `plugins` config
+- the standalone bootstrap `transports` config with `type: "plugin"`
 
 ## What it does
 
@@ -26,10 +26,17 @@ It is a minimal external transport module that implements the new `RegisteredTra
 
 ```json
 {
-  "plugins": [
+  "transports": [
     {
-      "type": "external",
-      "modulePath": "../../plugins/networks/demo/index.ts"
+      "type": "plugin",
+      "id": "demo-local",
+      "source": {
+        "kind": "path",
+        "path": "../../plugins/networks/demo/index.ts"
+      },
+      "config": {
+        "label": "demo transport"
+      }
     }
   ]
 }

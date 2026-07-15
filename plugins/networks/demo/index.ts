@@ -1,5 +1,5 @@
 import { StarwavePacket } from "@starwave/core";
-import { LoggerLike, RegisteredTransport, StarwaveNodeRuntime, TransportPluginFactory } from "@starwave/node";
+import { LoggerLike, RegisteredTransport, StarwaveNodeRuntime, TransportPluginContext, TransportPluginFactory } from "@starwave/node";
 
 class DemoLogger implements LoggerLike {
   debug(message: string, details?: Record<string, unknown>): void {
@@ -20,7 +20,7 @@ class DemoLogger implements LoggerLike {
 }
 
 class DemoTransport implements RegisteredTransport {
-  readonly id = "demo-network";
+  readonly id: string;
   readonly transportType = "demo";
 
   private readonly logger: LoggerLike;
@@ -29,15 +29,18 @@ class DemoTransport implements RegisteredTransport {
     (packet: StarwavePacket, context: { transportId: string; peerAddress?: string }) => Promise<void> | void
   > = [];
 
-  constructor(node: StarwaveNodeRuntime, logger: LoggerLike) {
+  constructor(node: StarwaveNodeRuntime, logger: LoggerLike, transportId?: string, private readonly config?: Record<string, unknown>) {
     this.node = node;
     this.logger = logger;
+    this.id = transportId ?? "demo-network";
   }
 
   async start(): Promise<void> {
     this.logger.info("Demo transport started", {
       nodeAddress: this.node.address,
       behavior: "logs packets but does not provide real network connectivity",
+      transportId: this.id,
+      config: this.config ?? {},
     });
   }
 
@@ -90,8 +93,8 @@ class DemoTransport implements RegisteredTransport {
 }
 
 const factory: TransportPluginFactory = {
-  async create(node: StarwaveNodeRuntime): Promise<RegisteredTransport> {
-    return new DemoTransport(node, new DemoLogger());
+  async create({ node, transportId, config, logger }: TransportPluginContext): Promise<RegisteredTransport> {
+    return new DemoTransport(node, logger ?? new DemoLogger(), transportId, config);
   },
 };
 
