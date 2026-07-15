@@ -1,17 +1,16 @@
 # StarWave Network Protocol
 
-This repository now contains two layers of history:
+This repository contains the TypeScript reference implementation of StarWave 2.
 
-- the original JavaScript PoC at the repository root
-- the new TypeScript rework for the StarWave 2 reference node in `packages/*`
+## Status
 
-## Rework status
-
-The `rework` branch introduces a new protocol v2 implementation with:
+The current implementation includes:
 
 - protocol version `2` packets
 - immutable signed envelopes plus mutable forwarding metadata
 - route-hint based forwarding with discovery fallback
+- peer exchange between trusted direct peers
+- route replies after successful discovery delivery
 - negotiated `CBOR` or `JSON` packet serialization after the first peer handshake
 - `secp256k1` origin signatures plus `x25519` peer session primitives
 - package split for `core`, `node`, and `transport-websocket`
@@ -30,6 +29,7 @@ The `rework` branch introduces a new protocol v2 implementation with:
 - [Core module](docs/modules/core.md)
 - [Node module](docs/modules/node.md)
 - [WebSocket transport module](docs/modules/transport-websocket.md)
+- [Standalone node](docs/modules/standalone.md)
 
 ## Quick start
 
